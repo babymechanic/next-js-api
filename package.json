@@ -12,8 +12,8 @@
     "middleware"
   ],
   "author": "",
-  "license": "ISC",
-  "peerDependencies": {
+  "license": "MIT",
+  "dependencies": {
     "next": "^12.1.6"
   },
   "devDependencies": {

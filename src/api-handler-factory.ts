@@ -1,7 +1,6 @@
-import { Methods, ApiRouteHandler, ApiRouteMiddleware } from './api-middleware-typings';
+import { ApiRouteMethods, ApiRouteHandler, ApiRouteMiddleware } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
-
 
 type RouteDefinitions = {
   handler: ApiRouteHandler,
@@ -14,7 +13,9 @@ type Options = {
   errorHandler?: (error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => Promise<void>;
 }
 
-function executeAll(hooks: (ApiRouteHandler | ApiRouteMiddleware)[], req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, seed: Promise<unknown> = Promise.resolve()): Promise<unknown> {
+type Hooks = ApiRouteHandler[] | ApiRouteMiddleware[];
+
+function executeAll(hooks: Hooks, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, seed: Promise<unknown> = Promise.resolve()): Promise<unknown> {
   return hooks.reduce((acc, hook) => {
     return acc.then(() => hook(req, res, context))
   }, seed);
@@ -28,7 +29,7 @@ function defaultErrorHandler(error: unknown, req: NextApiRequest, res: NextApiRe
   throw  error;
 }
 
-export function createHandlers(definitions: Partial<Record<Methods, RouteDefinitions>>, opts: Options = {}): (req: NextApiRequest, res: NextApiResponse) => (void) {
+export function createHandlers(definitions: Partial<Record<ApiRouteMethods, RouteDefinitions>>, opts: Options = {}): (req: NextApiRequest, res: NextApiResponse) => (void) {
 
   const {
     handlerMissingResponse = defaultRouteMissingMessage,
@@ -36,7 +37,7 @@ export function createHandlers(definitions: Partial<Record<Methods, RouteDefinit
   } = opts;
 
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const definition = definitions[req.method?.toLowerCase() as Methods];
+    const definition = definitions[req.method?.toLowerCase() as ApiRouteMethods];
     if (definition == null) return res.status(404).json(handlerMissingResponse());
     const {handler, preHooks = [], postHooks = []} = definition;
     const context = new PerRequestContext();
