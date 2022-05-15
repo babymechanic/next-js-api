@@ -2,7 +2,9 @@
   "name": "nextjs-api-tools",
   "version": "0.0.1",
   "description": "Tools to help with nextjs API routes",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist/**/*"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
