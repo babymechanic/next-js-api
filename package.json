@@ -1,5 +1,5 @@
 {
-  "name": "next-js-api",
+  "name": "next-middle-api",
   "version": "0.0.1",
   "description": "Tools to help with nextjs API routes",
   "main": "dist/index.js",
