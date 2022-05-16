@@ -22,9 +22,8 @@ export class PerRequestContext {
   }
 
   async destroy(): Promise<void> {
-    this._items.forEach(item => {
-      if (item.dispose == null) return;
-      item.dispose(item.value);
-    })
+    const itemsToDispose = Array.from(this._items.values())
+                                .filter(x => x.dispose != null);
+    await Promise.all(itemsToDispose.map(x => x.dispose?.(x.value)))
   }
 }

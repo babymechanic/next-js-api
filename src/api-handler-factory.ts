@@ -1,4 +1,4 @@
-import { ApiRouteMethods, ApiRouteHandler, ApiRouteMiddleware } from './api-middleware-typings';
+import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -13,13 +13,7 @@ type Options = {
   errorHandler?: (error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => Promise<void>;
 }
 
-type Hooks = ApiRouteHandler[] | ApiRouteMiddleware[];
-
-function executeAll(hooks: Hooks, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, seed: Promise<unknown> = Promise.resolve()): Promise<unknown> {
-  return hooks.reduce((acc, hook) => {
-    return acc.then(() => hook(req, res, context))
-  }, seed);
-}
+type FuncReturnsPromise = () => Promise<void>;
 
 function defaultRouteMissingMessage() {
   return {message: 'not found'};
@@ -27,6 +21,27 @@ function defaultRouteMissingMessage() {
 
 function defaultErrorHandler(error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) {
   throw  error;
+}
+
+function wrapHandler(handler: (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => void): ApiRouteMiddleware {
+  return (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
+    handler(req, res, context);
+    return next()
+  }
+}
+
+function createChainRunner(preHooks: ApiRouteMiddleware[],
+                           handler: ApiRouteHandler,
+                           postHooks: ApiRouteMiddleware[],
+                           req: NextApiRequest,
+                           res: NextApiResponse,
+                           context: PerRequestContext): FuncReturnsPromise {
+  const handlerWrapper: ApiRouteMiddleware = wrapHandler(handler);
+  const reversedMiddlewares: ApiRouteMiddleware[] = [...preHooks, handlerWrapper, ...postHooks].reverse();
+  const chain = reversedMiddlewares.reduce((acc: FuncReturnsPromise, middleware: ApiRouteMiddleware) => {
+    return (() => middleware(req, res, context, acc))
+  }, (() => Promise.resolve()));
+  return chain ?? (() => Promise.resolve());
 }
 
 export function createHandlers(definitions: Partial<Record<ApiRouteMethods, RouteDefinitions>>, opts: Options = {}): (req: NextApiRequest, res: NextApiResponse) => (void) {
@@ -41,11 +56,9 @@ export function createHandlers(definitions: Partial<Record<ApiRouteMethods, Rout
     if (definition == null) return res.status(404).json(handlerMissingResponse());
     const {handler, preHooks = [], postHooks = []} = definition;
     const context = new PerRequestContext();
-
     try {
-      await executeAll(preHooks, req, res, context);
-      await handler(req, res, context);
-      await executeAll(postHooks, req, res, context);
+      const chainRunner = createChainRunner(preHooks, handler, postHooks, req, res, context);
+      await chainRunner()
     } catch (e) {
       await errorHandler(e, req, res, context);
     } finally {
