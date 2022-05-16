@@ -1,4 +1,4 @@
-# nextjs-api-tools
+# next-js-api
 
 This a tool set to help with building APIs in next js.
 
@@ -9,7 +9,7 @@ Create route handlers for http methods
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'nextjs-api-tools'
+import { createHandlers, PerRequestContext } from 'next-js-api'
 
 export default createHandlers({
   get: { // http methods e.g. post, get, patch, delete
@@ -22,12 +22,12 @@ export default createHandlers({
 
 ## middleware
 
-- Use middlewares to create reusable dependencies for the handlers and optional clean up
+Use middlewares to create reusable dependencies for the handlers and optional clean up
 
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'nextjs-api-tools/dist/index'
+import { createHandlers, PerRequestContext } from 'next-js-api'
 
 async function cleanUp(value: unknown) {
   console.log(`Disposing ${value}`);
@@ -54,12 +54,12 @@ export default createHandlers({
 });
 ```
 
-- Use middleware to intercept the call
+Use middleware to intercept the call
 
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'nextjs-api-tools'
+import { createHandlers, PerRequestContext } from 'next-js-api'
 
 async function setFromMiddleware(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
   res.status(401).json({message: 'you are not authorised'})
@@ -77,9 +77,11 @@ export default createHandlers({
 
 ## Global error handling
 
+Define a function to handle an error in case of an error. 
+
 ```typescript
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, HandlerOptions, PerRequestContext } from 'nextjs-api-tools'
+import { createHandlers, HandlerOptions, PerRequestContext } from 'next-js-api'
 
 
 const opts: HandlerOptions = {
