@@ -1,4 +1,4 @@
-# next-js-api
+# next-middle-api
 
 This a tool set to help with building APIs in next js.
 
@@ -9,7 +9,7 @@ Create route handlers for http methods
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'next-js-api'
+import { createHandlers, PerRequestContext } from 'next-middle-api'
 
 export default createHandlers({
   get: { // http methods e.g. post, get, patch, delete
@@ -27,7 +27,7 @@ Use middlewares to create reusable dependencies for the handlers and optional cl
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'next-js-api'
+import { createHandlers, PerRequestContext } from 'next-middle-api'
 
 async function cleanUp(value: unknown) {
   console.log(`Disposing ${value}`);
@@ -59,7 +59,7 @@ Use middleware to intercept the call
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, PerRequestContext } from 'next-js-api'
+import { createHandlers, PerRequestContext } from 'next-middle-api'
 
 async function setFromMiddleware(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
   res.status(401).json({message: 'you are not authorised'})
@@ -81,7 +81,7 @@ Define a function to handle an error in case of an error.
 
 ```typescript
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createHandlers, HandlerOptions, PerRequestContext } from 'next-js-api'
+import { createHandlers, HandlerOptions, PerRequestContext } from 'next-middle-api'
 
 
 const opts: HandlerOptions = {
