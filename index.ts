@@ -1,4 +1,4 @@
-import { createHandlers } from './src/api-handler-factory';
+import { createHandlers, HandlerOptions } from './src/api-handler-factory';
 import { PerRequestContext } from './src/per-request-context';
 import { ApiRouteHandler, ApiRouteMiddleware, ApiRouteMethods } from './src/api-middleware-typings'
 
@@ -7,5 +7,6 @@ export {
   PerRequestContext,
   ApiRouteHandler,
   ApiRouteMiddleware,
-  ApiRouteMethods
+  ApiRouteMethods,
+  HandlerOptions
 }

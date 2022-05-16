@@ -8,7 +8,7 @@ type RouteDefinitions = {
   postHooks?: ApiRouteMiddleware[]
 };
 
-type Options = {
+export type HandlerOptions = {
   handlerMissingResponse?: () => unknown;
   errorHandler?: (error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => Promise<void>;
 }
@@ -44,7 +44,7 @@ function createChainRunner(preHooks: ApiRouteMiddleware[],
   return chain ?? (() => Promise.resolve());
 }
 
-export function createHandlers(definitions: Partial<Record<ApiRouteMethods, RouteDefinitions>>, opts: Options = {}): (req: NextApiRequest, res: NextApiResponse) => (void) {
+export function createHandlers(definitions: Partial<Record<ApiRouteMethods, RouteDefinitions>>, opts: HandlerOptions = {}): (req: NextApiRequest, res: NextApiResponse) => (void) {
 
   const {
     handlerMissingResponse = defaultRouteMissingMessage,
