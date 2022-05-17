@@ -1,6 +1,6 @@
 # next-middle-api
 
-This a tool set to help with building APIs in next js.
+This is a tool set to help with building APIs in next js.
 
 ## Route definitions for HTTP methods
 
@@ -96,6 +96,26 @@ export default createHandlers({
       throw new Error('something fell apart');
     },
   }
+}, opts);
+```
+
+## Custom 404 Response
+
+```typescript
+import { createHandlers, HandlerOptions } from 'next-middle-api';
+
+const opts: HandlerOptions = {
+  handlerMissingResponse() {
+    return {message: 'my custom 404 message'}
+  }
+};
+
+export default createHandlers({
+  post: {
+    handler: (req, res) => {
+      res.status(200).json({message: 'This was a post'})
+    }
+  },
 }, opts);
 ```
 
