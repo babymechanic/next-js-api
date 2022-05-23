@@ -1,6 +1,11 @@
 # next-middle-api
 
 This is a tool set to help with building APIs in next js.
+Use it to create middleware and handle dependencies with a hook to clean up per request.
+
+## Available plugins
+- Handle query params [next-middle-api-query-parser](https://www.npmjs.com/package/next-middle-api-query-parser).
+
 
 ## Route definitions for HTTP methods
 
