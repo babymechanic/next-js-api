@@ -1,3 +1,5 @@
+![tests](https://github.com/babymechanic/next-middle-api-query-parser/actions/workflows/run-tests.yml/badge.svg)
+
 # next-middle-api
 
 This is a tool set to help with building APIs in next js.
