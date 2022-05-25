@@ -5,6 +5,15 @@ interface PerRequestContextItem<T> {
   dispose?: Disposable<T>;
 }
 
+const wrapDisposeError = (x: PerRequestContextItem<unknown>): { error: any } => {
+  try {
+    x.dispose?.(x.value)
+    return {error: null};
+  } catch (e: any) {
+    return {error: e};
+  }
+};
+
 export class PerRequestContext {
 
   private readonly _items: Map<string, PerRequestContextItem<any>>;
@@ -24,6 +33,9 @@ export class PerRequestContext {
   async destroy(): Promise<void> {
     const itemsToDispose = Array.from(this._items.values())
                                 .filter(x => x.dispose != null);
-    await Promise.all(itemsToDispose.map(x => x.dispose?.(x.value)))
+    const disposeResults = await Promise.all(itemsToDispose.map(wrapDisposeError));
+    const errors = disposeResults.filter(x => x.error != null);
+    if (errors.length === 0) return;
+    throw errors[0].error;
   }
 }
