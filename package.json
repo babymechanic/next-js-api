@@ -1,9 +1,14 @@
 {
   "name": "next-middle-api",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Tools to help with nextjs API routes",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/babymechanic/next-middle-api.git"
+  },
+  "homepage": "https://github.com/babymechanic/next-middle-api#readme",
   "files": [
     "dist/**/*"
   ],
