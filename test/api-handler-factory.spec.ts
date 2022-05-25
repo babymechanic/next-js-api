@@ -252,9 +252,11 @@ describe('#createHandlers', () => {
     const statusMethodStub = sinon.stub();
     const jsonMethodStub = sinon.stub();
     const response = createResponseStub(statusMethodStub, jsonMethodStub);
-
     try {
+
       await handler(request, response)
+
+      expect.fail('this should not be executed');
     } catch (e) {
       sinon.assert.calledWith(cleanUp, testResource);
       sinon.assert.notCalled(postHook1);
