@@ -32,7 +32,7 @@ describe('#createHandlers', () => {
   it('should return a 404 if the handler is not there for the verb', async function () {
     const handler = createHandlers({
       get: {
-        handler() {
+        async handler() {
         }
       }
     });
@@ -54,7 +54,7 @@ describe('#createHandlers', () => {
 
     const handler = createHandlers({
       get: {
-        handler: () => {
+        handler: async () => {
         }
       }
     }, opts);
@@ -74,7 +74,7 @@ describe('#createHandlers', () => {
     const expectedJson = {message: 'seems ok'};
     const handler = createHandlers({
       get: {
-        handler: (req, res) => res.status(200).json(expectedJson)
+        handler: async (req, res) => res.status(200).json(expectedJson)
       }
     });
     const request = createRequestStub('get');
@@ -92,7 +92,7 @@ describe('#createHandlers', () => {
     const [preHook1, preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub()])
     const handler = createHandlers({
       get: {
-        handler: (req, res, context) => res.status(200).json({message: 'ok'}),
+        handler: async (req, res, context) => res.status(200).json({message: 'ok'}),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }
@@ -115,7 +115,7 @@ describe('#createHandlers', () => {
     const [preHook1, preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub()]);
     const handler = createHandlers({
       get: {
-        handler: (req, res) => res.status(200).json({message: 'ok'}),
+        handler: async (req, res) => res.status(200).json({message: 'ok'}),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }
@@ -137,7 +137,7 @@ describe('#createHandlers', () => {
     });
     const handler = createHandlers({
       get: {
-        handler: () => expect.fail('this call should not have happened'),
+        handler: async () => expect.fail('this call should not have happened'),
         preHooks: [preHook],
       }
     });
@@ -163,7 +163,7 @@ describe('#createHandlers', () => {
 
     const handler = createHandlers({
       get: {
-        handler: () => {
+        handler: async () => {
           throw new Error(errorMessage)
         }
       }
@@ -183,7 +183,7 @@ describe('#createHandlers', () => {
     const errorMessage = 'something went wrong';
     const handler = createHandlers({
       get: {
-        handler: () => {
+        handler: async () => {
           throw new Error(errorMessage)
         }
       }
@@ -211,7 +211,7 @@ describe('#createHandlers', () => {
     const [preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub()])
     const handler = createHandlers({
       get: {
-        handler: (req, res, context) => res.status(200).json({message: 'ok'}),
+        handler: async (req, res, context) => res.status(200).json({message: 'ok'}),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }
@@ -243,7 +243,7 @@ describe('#createHandlers', () => {
     const [preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub()])
     const handler = createHandlers({
       get: {
-        handler: () => Promise.reject('something went wrong'),
+        handler: async () => Promise.reject('something went wrong'),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }

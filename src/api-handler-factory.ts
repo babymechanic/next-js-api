@@ -19,13 +19,13 @@ function defaultRouteMissingMessage() {
   return {message: 'not found'};
 }
 
-function defaultErrorHandler(error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) {
+function defaultErrorHandler(error: unknown) {
   throw  error;
 }
 
-function wrapHandler(handler: (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => void): ApiRouteMiddleware {
-  return (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
-    handler(req, res, context);
+function wrapHandler(handler: ApiRouteHandler): ApiRouteMiddleware {
+  return async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
+    await handler(req, res, context);
     return next()
   }
 }

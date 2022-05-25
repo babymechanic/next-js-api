@@ -20,7 +20,7 @@ import { createHandlers, PerRequestContext } from 'next-middle-api'
 
 export default createHandlers({
   get: { // http methods e.g. post, get, patch, delete
-    handler: (req, res) => {
+    handler: async (req, res) => {
       res.status(200).json({name: 'hello'})
     }
   }
@@ -52,7 +52,7 @@ function interceptResponse(req: NextApiRequest, res: NextApiResponse, context: P
 
 export default createHandlers({
   get: {
-    handler: (req, res, context) => {
+    handler: async (req, res, context) => {
       res.status(200).json({name: context.getItem('test')})
     },
     preHooks: [setFromMiddleware],
@@ -74,7 +74,7 @@ async function setFromMiddleware(req: NextApiRequest, res: NextApiResponse, cont
 
 export default createHandlers({
   get: {
-    handler: (req, res, context) => {
+    handler: async (req, res, context) => {
       res.status(200).json({name: 'this will not be called'})
     },
     preHooks: [setFromMiddleware]
@@ -99,7 +99,7 @@ const opts: HandlerOptions = {
 
 export default createHandlers({
   get: {
-    handler: (req, res, context) => {
+    handler: async (req, res, context) => {
       throw new Error('something fell apart');
     },
   }
@@ -119,7 +119,7 @@ const opts: HandlerOptions = {
 
 export default createHandlers({
   post: {
-    handler: (req, res) => {
+    handler: async (req, res) => {
       res.status(200).json({message: 'This was a post'})
     }
   },
