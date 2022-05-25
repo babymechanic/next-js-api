@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createHandlers, FuncReturnsPromise } from '../src/api-handler-factory';
+import { createHandlers, FuncReturnsPromise, HandlerOptions } from '../src/api-handler-factory';
 import { ApiRouteMethods } from '../src/api-middleware-typings';
 import * as sinon from 'sinon';
 import { SinonStub } from 'sinon';
@@ -151,6 +151,117 @@ describe('#createHandlers', () => {
     sinon.assert.calledWith(preHook, request, response, sinon.match.instanceOf(PerRequestContext), sinon.match.func);
     sinon.assert.calledWith(statusMethodStub, 200);
     sinon.assert.calledWith(jsonMethodStub, {message: 'this call was intercepted'});
+  });
+
+  it('should call the provided error handler if there is an error', async function () {
+    const opts: HandlerOptions = {
+      errorHandler: async (error, req, res) => {
+        res.status(500).json({message: (error as Error).message});
+      }
+    };
+    const errorMessage = 'something went wrong';
+
+    const handler = createHandlers({
+      get: {
+        handler: () => {
+          throw new Error(errorMessage)
+        }
+      }
+    }, opts);
+    const request = createRequestStub('get');
+    const statusMethodStub = sinon.stub();
+    const jsonMethodStub = sinon.stub();
+    const response = createResponseStub(statusMethodStub, jsonMethodStub);
+
+    await handler(request, response)
+
+    sinon.assert.calledWith(statusMethodStub, 500);
+    sinon.assert.calledWith(jsonMethodStub, {message: errorMessage});
+  });
+
+  it('should raise the error by default on error', async function () {
+    const errorMessage = 'something went wrong';
+    const handler = createHandlers({
+      get: {
+        handler: () => {
+          throw new Error(errorMessage)
+        }
+      }
+    });
+    const request = createRequestStub('get');
+    const statusMethodStub = sinon.stub();
+    const jsonMethodStub = sinon.stub();
+    const response = createResponseStub(statusMethodStub, jsonMethodStub);
+    try {
+
+      await handler(request, response);
+
+    } catch (e: any) {
+      expect(e.message).to.equal(errorMessage);
+    }
+  });
+
+  it('should call destroy on the context after all hooks are called', async function () {
+    const testResource = 'testResource';
+    const cleanUp = sinon.stub().returns(Promise.resolve());
+    const preHook1 = sinon.stub().returns(Promise.resolve()).callsFake((req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise) => {
+      context.addItem('testKey', testResource, cleanUp);
+      next();
+    })
+    const [preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub()])
+    const handler = createHandlers({
+      get: {
+        handler: (req, res, context) => res.status(200).json({message: 'ok'}),
+        preHooks: [preHook1, preHook2],
+        postHooks: [postHook1, postHook2]
+      }
+    });
+    const request = createRequestStub('get');
+    const statusMethodStub = sinon.stub();
+    const jsonMethodStub = sinon.stub();
+    const response = createResponseStub(statusMethodStub, jsonMethodStub);
+
+    await handler(request, response)
+
+    sinon.assert.calledWith(cleanUp, testResource);
+    expect(cleanUp.calledAfter(preHook1)).to.equal(true);
+    expect(cleanUp.calledAfter(preHook2)).to.equal(true);
+    expect(cleanUp.calledAfter(postHook1)).to.equal(true);
+    expect(cleanUp.calledAfter(postHook2)).to.equal(true);
+    expect(cleanUp.calledAfter(statusMethodStub)).to.equal(true);
+    expect(cleanUp.calledAfter(jsonMethodStub)).to.equal(true);
+  });
+
+
+  it('should call destroy on the context even if there is an error', async function () {
+    const testResource = 'testResource';
+    const cleanUp = sinon.stub().returns(Promise.resolve());
+    const preHook1 = sinon.stub().returns(Promise.resolve()).callsFake((req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise) => {
+      context.addItem('testKey', testResource, cleanUp);
+      next();
+    })
+    const [preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub()])
+    const handler = createHandlers({
+      get: {
+        handler: () => Promise.reject('something went wrong'),
+        preHooks: [preHook1, preHook2],
+        postHooks: [postHook1, postHook2]
+      }
+    });
+    const request = createRequestStub('get');
+    const statusMethodStub = sinon.stub();
+    const jsonMethodStub = sinon.stub();
+    const response = createResponseStub(statusMethodStub, jsonMethodStub);
+
+    try {
+      await handler(request, response)
+    } catch (e) {
+      sinon.assert.calledWith(cleanUp, testResource);
+      sinon.assert.notCalled(postHook1);
+      sinon.assert.notCalled(postHook2);
+      sinon.assert.called(preHook1);
+      sinon.assert.called(preHook2);
+    }
   });
 
 });
