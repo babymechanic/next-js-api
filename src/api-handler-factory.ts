@@ -13,7 +13,7 @@ export type HandlerOptions = {
   errorHandler?: (error: unknown, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => Promise<void>;
 }
 
-type FuncReturnsPromise = () => Promise<void>;
+export type FuncReturnsPromise = () => Promise<void>;
 
 function defaultRouteMissingMessage() {
   return {message: 'not found'};
