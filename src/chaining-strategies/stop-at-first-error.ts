@@ -4,7 +4,7 @@ import { PerRequestContext } from '../per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { FuncReturnsPromise } from '../api-handler-factory';
 
-export class BreakAtFirstError implements IChainingStrategy {
+export class StopAtFirstError implements IChainingStrategy {
 
   wrapHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
     return async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {

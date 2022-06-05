@@ -1,6 +1,8 @@
-import { createHandlers, HandlerOptions } from './src/api-handler-factory';
+import { createHandlers } from './src/api-handler-factory';
 import { PerRequestContext } from './src/per-request-context';
-import { ApiRouteHandler, ApiRouteMiddleware, ApiRouteMethods } from './src/api-middleware-typings'
+import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, HandlerOptions } from './src/api-middleware-typings'
+import { ChainingStrategies } from './src/chaining-strategies';
+import { IChainingStrategy } from './src/chaining-strategies/i-chaining-strategy';
 
 export {
   createHandlers,
@@ -8,5 +10,7 @@ export {
   ApiRouteHandler,
   ApiRouteMiddleware,
   ApiRouteMethods,
-  HandlerOptions
+  HandlerOptions,
+  ChainingStrategies,
+  IChainingStrategy
 }

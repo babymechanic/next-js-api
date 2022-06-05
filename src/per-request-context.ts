@@ -17,13 +17,27 @@ const wrapDisposeError = (x: PerRequestContextItem<unknown>): { error: any } => 
 export class PerRequestContext {
 
   private readonly _items: Map<string, PerRequestContextItem<any>>;
+  private readonly _errors: unknown[];
 
   constructor() {
     this._items = new Map<string, PerRequestContextItem<any>>();
+    this._errors = [];
   }
 
   addItem<T>(key: string, value: T, dispose?: Disposable<T>): void {
     this._items.set(key, {value, dispose});
+  }
+
+  registerError(error: unknown) {
+    this._errors.push(error);
+  }
+
+  get firstError(): unknown {
+    return this._errors[0];
+  }
+
+  get hasError(): boolean {
+    return this._errors.length > 0;
   }
 
   getItem(key: string): unknown {

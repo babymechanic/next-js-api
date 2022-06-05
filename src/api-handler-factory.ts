@@ -1,8 +1,9 @@
 import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { BreakAtFirstError } from './chaining-strategies/break-at-first-error';
+import { StopAtFirstError } from './chaining-strategies/stop-at-first-error';
 import { IChainingStrategy } from './chaining-strategies/i-chaining-strategy';
+import { ChainingStrategies } from './chaining-strategies';
 
 export type FuncReturnsPromise = () => Promise<void>;
 
@@ -33,7 +34,7 @@ export function createHandlers(definitions: Partial<Record<ApiRouteMethods, Rout
   const {
     handlerMissingResponse = defaultRouteMissingMessage,
     errorHandler = defaultErrorHandler,
-    chainingStrategy = new BreakAtFirstError()
+    chainingStrategy = ChainingStrategies.StopAtFirstError
   } = opts;
 
   return async (req: NextApiRequest, res: NextApiResponse) => {
