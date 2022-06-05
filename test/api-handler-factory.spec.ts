@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createHandlers, FuncReturnsPromise, HandlerOptions } from '../src/api-handler-factory';
-import { ApiRouteMethods } from '../src/api-middleware-typings';
+import { createHandlers, FuncReturnsPromise } from '../src/api-handler-factory';
+import { ApiRouteMethods, HandlerOptions } from '../src/api-middleware-typings';
 import * as sinon from 'sinon';
 import { SinonStub } from 'sinon';
 import { expect } from 'chai';
@@ -50,7 +50,7 @@ describe('#createHandlers', () => {
 
   it('should be able to customize the 404 response', async function () {
     const expectedResponse = {message: 'this is a custom message'};
-    const opts = {handlerMissingResponse: () => expectedResponse};
+    const opts: HandlerOptions = {handlerMissingResponse: () => expectedResponse};
 
     const handler = createHandlers({
       get: {
@@ -92,7 +92,7 @@ describe('#createHandlers', () => {
     const [preHook1, preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub(), sinon.stub()])
     const handler = createHandlers({
       get: {
-        handler: async (req, res, context) => res.status(200).json({message: 'ok'}),
+        handler: async (req, res) => res.status(200).json({message: 'ok'}),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }
@@ -211,7 +211,7 @@ describe('#createHandlers', () => {
     const [preHook2, postHook1, postHook2] = setStubsToCallNext([sinon.stub(), sinon.stub(), sinon.stub()])
     const handler = createHandlers({
       get: {
-        handler: async (req, res, context) => res.status(200).json({message: 'ok'}),
+        handler: async (req, res) => res.status(200).json({message: 'ok'}),
         preHooks: [preHook1, preHook2],
         postHooks: [postHook1, postHook2]
       }
