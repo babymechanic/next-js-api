@@ -1,10 +1,10 @@
-import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
+import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, FuncReturnsPromise, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IChainingStrategy } from './chaining-strategies/i-chaining-strategy';
 import { ChainingStrategies } from './chaining-strategies';
+import { createdOneTimeCallable } from './utils';
 
-export type FuncReturnsPromise = () => Promise<void>;
 
 function defaultRouteMissingMessage() {
   return {message: 'not found'};
@@ -13,6 +13,7 @@ function defaultRouteMissingMessage() {
 function defaultErrorHandler(error: unknown) {
   throw  error;
 }
+
 
 function createChainRunner(preHooks: ApiRouteMiddleware[], handler: ApiRouteHandler, postHooks: ApiRouteMiddleware[], req: NextApiRequest,
                            res: NextApiResponse, context: PerRequestContext, chainingStrategy: IChainingStrategy): FuncReturnsPromise {
@@ -23,7 +24,7 @@ function createChainRunner(preHooks: ApiRouteMiddleware[], handler: ApiRouteHand
   const reversedMiddlewares: ApiRouteMiddleware[] = [...wrappedPreHooks, wrappedHandler, ...wrappedPostHooks].reverse();
 
   const chain = reversedMiddlewares.reduce((acc: FuncReturnsPromise, middleware: ApiRouteMiddleware) => {
-    return (() => middleware(req, res, context, acc))
+    return (() => middleware(req, res, context, createdOneTimeCallable(acc)));
   }, (() => Promise.resolve()));
   return chain ?? (() => Promise.resolve());
 }

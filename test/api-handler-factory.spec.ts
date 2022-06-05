@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createHandlers, FuncReturnsPromise } from '../src/api-handler-factory';
-import { ApiRouteMethods, HandlerOptions } from '../src/api-middleware-typings';
+import { createHandlers } from '../src/api-handler-factory';
+import { ApiRouteMethods, FuncReturnsPromise, HandlerOptions } from '../src/api-middleware-typings';
 import * as sinon from 'sinon';
 import { SinonStub } from 'sinon';
 import { expect } from 'chai';

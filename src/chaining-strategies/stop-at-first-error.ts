@@ -1,8 +1,7 @@
 import { IChainingStrategy } from './i-chaining-strategy';
-import { ApiRouteHandler, ApiRouteMiddleware } from '../api-middleware-typings';
+import { ApiRouteHandler, ApiRouteMiddleware, FuncReturnsPromise } from '../api-middleware-typings';
 import { PerRequestContext } from '../per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { FuncReturnsPromise } from '../api-handler-factory';
 
 export class StopAtFirstError implements IChainingStrategy {
 

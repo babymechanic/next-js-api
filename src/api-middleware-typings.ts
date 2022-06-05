@@ -2,6 +2,7 @@ import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IChainingStrategy } from './chaining-strategies/i-chaining-strategy';
 
+export type FuncReturnsPromise = () => Promise<void>;
 export type ApiRouteHandler = (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext) => Promise<void>;
 export type ApiRouteMiddleware = (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>) => Promise<void>;
 

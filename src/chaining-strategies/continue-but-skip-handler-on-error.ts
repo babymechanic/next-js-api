@@ -1,8 +1,7 @@
-import { ApiRouteHandler, ApiRouteMiddleware } from '../api-middleware-typings';
+import { ApiRouteHandler, ApiRouteMiddleware, FuncReturnsPromise } from '../api-middleware-typings';
 import { PerRequestContext } from '../per-request-context';
 import { IChainingStrategy } from './i-chaining-strategy';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { FuncReturnsPromise } from '../api-handler-factory';
 
 export class ContinueButSkipHandlerOnError implements IChainingStrategy {
   wrapHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
