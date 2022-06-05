@@ -1,7 +1,6 @@
 import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { StopAtFirstError } from './chaining-strategies/stop-at-first-error';
 import { IChainingStrategy } from './chaining-strategies/i-chaining-strategy';
 import { ChainingStrategies } from './chaining-strategies';
 
