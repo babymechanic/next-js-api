@@ -1,31 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createHandlers } from '../src/api-handler-factory';
-import { ApiRouteMethods, FuncReturnsPromise, HandlerOptions } from '../src/api-middleware-typings';
+import { FuncReturnsPromise, HandlerOptions } from '../src/api-middleware-typings';
 import * as sinon from 'sinon';
-import { SinonStub } from 'sinon';
 import { expect } from 'chai';
 import { PerRequestContext } from '../src/per-request-context';
-
-function createRequestStub(verb: ApiRouteMethods) {
-  return {
-    method: verb
-  } as NextApiRequest
-}
-
-function createResponseStub(statusMethodStub: SinonStub, jsonMethodStub: SinonStub) {
-  statusMethodStub.returns({json: jsonMethodStub});
-  return {
-    status: statusMethodStub as any
-  } as NextApiResponse
-}
-
-const callNext = async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise) => {
-  await next();
-};
-
-function setStubsToCallNext(stubs: SinonStub[]) {
-  return stubs.map((x) => x.returns(Promise.resolve()).callsFake(callNext));
-}
+import { createRequestStub, createResponseStub, setStubsToCallNext } from './test-utils/nextjs-specific-mocks';
 
 describe('#createHandlers', () => {
 

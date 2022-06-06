@@ -1,17 +1,15 @@
 import { FuncReturnsPromise } from './api-middleware-typings';
 
-export class InvalidCallError extends Error {
-}
-
-export const createdOneTimeCallable = (callable: FuncReturnsPromise, errorMessage = 'was invoked more than once'): FuncReturnsPromise => {
+export const createdOneTimeCallable = (callable: FuncReturnsPromise, errorMessage = 'was invoked more than once so ignoring second call'): FuncReturnsPromise => {
   return (() => {
     let executed = false;
-    return (): Promise<void> => {
+    return async (): Promise<void> => {
       if (executed) {
-        throw new InvalidCallError(errorMessage);
+        console.error(errorMessage);
+      } else {
+        executed = true;
+        return callable();
       }
-      executed = true;
-      return callable()
     }
   })();
 }

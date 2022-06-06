@@ -1,4 +1,4 @@
-import { ApiRouteHandler, ApiRouteMethods, ApiRouteMiddleware, FuncReturnsPromise, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
+import { ApiRouteMethods, ApiRouteMiddleware, FuncReturnsPromise, HandlerOptions, RouteDefinitions } from './api-middleware-typings';
 import { PerRequestContext } from './per-request-context';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IChainingStrategy } from './chaining-strategies/i-chaining-strategy';
@@ -15,16 +15,17 @@ function defaultErrorHandler(error: unknown) {
 }
 
 
-function createChainRunner(preHooks: ApiRouteMiddleware[], handler: ApiRouteHandler, postHooks: ApiRouteMiddleware[], req: NextApiRequest,
-                           res: NextApiResponse, context: PerRequestContext, chainingStrategy: IChainingStrategy): FuncReturnsPromise {
+function createChainRunner(definition: RouteDefinitions, req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, chainingStrategy: IChainingStrategy): FuncReturnsPromise {
 
-  const wrappedPreHooks: ApiRouteMiddleware[] = preHooks.map(x => chainingStrategy.applyToMiddleware(x, context));
-  const wrappedHandler: ApiRouteMiddleware = chainingStrategy.applyToHandler(handler, context);
-  const wrappedPostHooks: ApiRouteMiddleware[] = postHooks.map(x => chainingStrategy.applyToMiddleware(x, context));
+  const {handler, preHooks = [], postHooks = []} = definition;
+
+  const wrappedPreHooks: ApiRouteMiddleware[] = preHooks.map(x => chainingStrategy.applyToMiddleware(x));
+  const wrappedHandler: ApiRouteMiddleware = chainingStrategy.applyToHandler(handler);
+  const wrappedPostHooks: ApiRouteMiddleware[] = postHooks.map(x => chainingStrategy.applyToMiddleware(x));
   const reversedMiddlewares: ApiRouteMiddleware[] = [...wrappedPreHooks, wrappedHandler, ...wrappedPostHooks].reverse();
 
   const chain = reversedMiddlewares.reduce((acc: FuncReturnsPromise, middleware: ApiRouteMiddleware) => {
-    return (() => middleware(req, res, context, createdOneTimeCallable(acc)));
+    return (() => middleware(req, res, context, createdOneTimeCallable(acc, 'next was called more than once')));
   }, (() => Promise.resolve()));
   return chain ?? (() => Promise.resolve());
 }
@@ -40,10 +41,11 @@ export function createHandlers(definitions: Partial<Record<ApiRouteMethods, Rout
   return async (req: NextApiRequest, res: NextApiResponse) => {
     const definition = definitions[req.method?.toLowerCase() as ApiRouteMethods];
     if (definition == null) return res.status(404).json(handlerMissingResponse());
-    const {handler, preHooks = [], postHooks = []} = definition;
+
     const context = new PerRequestContext();
+
     try {
-      const chainRunner = createChainRunner(preHooks, handler, postHooks, req, res, context, chainingStrategy);
+      const chainRunner = createChainRunner(definition, req, res, context, chainingStrategy);
       await chainRunner()
     } catch (e) {
       await errorHandler(e, req, res, context);
