@@ -5,14 +5,14 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export class StopAtFirstError implements IChainingStrategy {
 
-  wrapHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
+  applyToHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
     return async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
       await handler(req, res, context);
       return next()
     }
   }
 
-  wrapMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware {
+  applyToMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware {
     return handler;
   }
 

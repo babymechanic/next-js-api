@@ -18,9 +18,9 @@ function defaultErrorHandler(error: unknown) {
 function createChainRunner(preHooks: ApiRouteMiddleware[], handler: ApiRouteHandler, postHooks: ApiRouteMiddleware[], req: NextApiRequest,
                            res: NextApiResponse, context: PerRequestContext, chainingStrategy: IChainingStrategy): FuncReturnsPromise {
 
-  const wrappedPreHooks: ApiRouteMiddleware[] = preHooks.map(x => chainingStrategy.wrapMiddleware(x, context));
-  const wrappedHandler: ApiRouteMiddleware = chainingStrategy.wrapHandler(handler, context);
-  const wrappedPostHooks: ApiRouteMiddleware[] = postHooks.map(x => chainingStrategy.wrapMiddleware(x, context));
+  const wrappedPreHooks: ApiRouteMiddleware[] = preHooks.map(x => chainingStrategy.applyToMiddleware(x, context));
+  const wrappedHandler: ApiRouteMiddleware = chainingStrategy.applyToHandler(handler, context);
+  const wrappedPostHooks: ApiRouteMiddleware[] = postHooks.map(x => chainingStrategy.applyToMiddleware(x, context));
   const reversedMiddlewares: ApiRouteMiddleware[] = [...wrappedPreHooks, wrappedHandler, ...wrappedPostHooks].reverse();
 
   const chain = reversedMiddlewares.reduce((acc: FuncReturnsPromise, middleware: ApiRouteMiddleware) => {

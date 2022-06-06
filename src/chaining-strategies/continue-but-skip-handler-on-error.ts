@@ -4,7 +4,7 @@ import { IChainingStrategy } from './i-chaining-strategy';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export class ContinueButSkipHandlerOnError implements IChainingStrategy {
-  wrapHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
+  applyToHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware {
     return async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
       if (context.hasError) return next();
       try {
@@ -16,7 +16,7 @@ export class ContinueButSkipHandlerOnError implements IChainingStrategy {
     }
   }
 
-  wrapMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware {
+  applyToMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware {
     return async (req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: FuncReturnsPromise): Promise<void> => {
       try {
         await handler(req, res, context, next);

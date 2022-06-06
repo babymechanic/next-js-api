@@ -2,8 +2,8 @@ import { ApiRouteHandler, ApiRouteMiddleware } from '../api-middleware-typings';
 import { PerRequestContext } from '../per-request-context';
 
 export interface IChainingStrategy {
-  wrapHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware;
+  applyToHandler(handler: ApiRouteHandler, context: PerRequestContext): ApiRouteMiddleware;
 
-  wrapMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware;
+  applyToMiddleware(handler: ApiRouteMiddleware, context: PerRequestContext): ApiRouteMiddleware;
 }
 
