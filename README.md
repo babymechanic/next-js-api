@@ -143,13 +143,15 @@ By default, on error the chain stops executing.
 Out of the box the supported strategies are:
 - Stop at first error in the chain
   - It will just use the `errorHandler` option that was passed which by default bubbles the error to the root.
-- Execute all even on error 
+- Execute all even on error
+  - It will execute all the middlewares and route handler even on error
   - You need to make sure that you handle the error and return an appropriate response
   - The context `firstError` prop has the first error that occurred. 
   - The `errors` prop will give all the errors.
 - Execute on error but skip the handler
-  - It will execute all the middlewares but skip the route handler
+  - It will execute all the middlewares but skip the route handler on error
   - You need to make sure that you handle the error and return an appropriate response
+  - The context `firstError` prop has the first error that occurred.
   - The `errors` prop will give all the errors.
 
 You can choose to implement your own custom strategy by implementing `IChainingStrategy` and using it instead
@@ -171,14 +173,13 @@ const returnErrorMessage: ApiRouteMiddleware = async (req, res, context, next) =
 };
 
 const opts: HandlerOptions = {
-  errorHandler: async (error, req, res) => res.status(500).json({message: (error as any).message}),
   chainingStrategy: ChainingStrategies.ContinueButSkipHandlerOnError
 };
 
 export default createHandlers({
   get: {
     handler: async (req, res) => {
-      res.status(200).json({message: 'hello'});
+      res.status(200).json({message: 'this handler will not execute'});
     },
     preHooks: [alwaysThrowError],
     postHooks: [returnErrorMessage]
