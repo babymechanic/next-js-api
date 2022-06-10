@@ -2,12 +2,16 @@
 
 # next-middle-api
 
-This is a tool set to help with building APIs in next js.
-Use it to create middleware and handle dependencies with a hook to clean up per request.
+## Features
+- Define middlewares to run before and after the handler
+- Per request context
+- Configure execution chain of middlewares and handler or implement a custom execution on error
+- Create resources like connections and resources with teardown per request
+- Intercept the call in the middleware and short circuit
 
 ## Available plugins
-- Handle query params [next-middle-api-query-parser](https://www.npmjs.com/package/next-middle-api-query-parser).
 
+- Handle query params [next-middle-api-query-parser](https://www.npmjs.com/package/next-middle-api-query-parser).
 
 ## Route definitions for HTTP methods
 
@@ -29,23 +33,29 @@ export default createHandlers({
 
 ## middleware
 
-Use middlewares to create reusable dependencies for the handlers and optional clean up
+Use middlewares to create reusable dependencies for the handlers and optional clean up.
+The cleanup callback will be called even if any failures take place.
+This comes in handy when you are dealing things like connections or db transactions.
 
 ```typescript
 // pages/api/hello.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createHandlers, PerRequestContext } from 'next-middle-api'
 
-async function cleanUp(value: unknown) {
+async function closeConnection(value: unknown) {
+  // close your connection
   console.log(`Disposing ${value}`);
 }
 
-function setFromMiddleware(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
-  context.addItem('test', 'hi from middleware', cleanUp);
+function createConnection(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
+  // create your connection or transaction
+  context.addItem('test', 'db connection', closeConnection);
   return next();
 }
 
-function interceptResponse(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
+function commitOrRollbackTransaction(req: NextApiRequest, res: NextApiResponse, context: PerRequestContext, next: () => Promise<void>): Promise<void> {
+  // check the response to decide to commit or rollback 
+  const connection = context.getItem('test');
   console.log(`post hook response code was ${res.statusCode}`);
   return next();
 }
@@ -55,8 +65,8 @@ export default createHandlers({
     handler: async (req, res, context) => {
       res.status(200).json({name: context.getItem('test')})
     },
-    preHooks: [setFromMiddleware],
-    postHooks: [interceptResponse]
+    preHooks: [createConnection],
+    postHooks: [commitOrRollbackTransaction]
   }
 });
 ```
@@ -84,7 +94,7 @@ export default createHandlers({
 
 ## Global error handling
 
-Define a function to handle an error in case of an error. 
+Define a function to handle an error in case of an error.
 
 ```typescript
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -124,6 +134,56 @@ export default createHandlers({
     }
   },
 }, opts);
+```
+
+## Chaining Strategies
+
+By default, on error the chain stops executing.  
+
+Out of the box the supported strategies are:
+- Stop at first error in the chain
+  - It will just use the `errorHandler` option that was passed which by default bubbles the error to the root.
+- Execute all even on error 
+  - You need to make sure that you handle the error and return an appropriate response
+  - The context `firstError` prop has the first error that occurred. 
+  - The `errors` prop will give all the errors.
+- Execute on error but skip the handler
+  - It will execute all the middlewares but skip the route handler
+  - You need to make sure that you handle the error and return an appropriate response
+  - The `errors` prop will give all the errors.
+
+You can choose to implement your own custom strategy by implementing `IChainingStrategy` and using it instead
+
+The example below shows how to change the chaining strategy. 
+
+```typescript
+import { HandlerOptions, ApiRouteMiddleware, createHandlers, ChainingStrategies } from 'next-middle-api';
+
+const alwaysThrowError: ApiRouteMiddleware = async () => {
+  throw new Error('some new error');
+};
+
+const returnErrorMessage: ApiRouteMiddleware = async (req, res, context, next) => {
+  if (!context.hasError) return next();
+  const message = (context.firstError as any).message;
+  res.status(500).json({message: `${message} was found later down stream`});
+  await next();
+};
+
+const opts: HandlerOptions = {
+  errorHandler: async (error, req, res) => res.status(500).json({message: (error as any).message}),
+  chainingStrategy: ChainingStrategies.ContinueButSkipHandlerOnError
+};
+
+export default createHandlers({
+  get: {
+    handler: async (req, res) => {
+      res.status(200).json({message: 'hello'});
+    },
+    preHooks: [alwaysThrowError],
+    postHooks: [returnErrorMessage]
+  }
+});
 ```
 
 # License

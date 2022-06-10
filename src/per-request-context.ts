@@ -28,6 +28,10 @@ export class PerRequestContext {
     this._items.set(key, {value, dispose});
   }
 
+  get errors(): unknown[] {
+    return [...this._errors];
+  }
+
   registerError(error: unknown) {
     this._errors.push(error);
   }
