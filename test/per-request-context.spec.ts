@@ -47,9 +47,9 @@ describe('#PerRequestContext', () => {
       await context.destroy();
 
       expect.fail('should have thrown an error');
-    } catch (e: any) {
+    } catch (e: unknown) {
       expect(e).to.be.instanceOf(Error);
-      expect(e.message).to.equal('something went wrong')
+      expect((e as Error).message).to.equal('something went wrong')
       sinon.assert.calledWith(tearDown1, resource1);
       sinon.assert.calledWith(tearDown2, resource2);
     }

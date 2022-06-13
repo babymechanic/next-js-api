@@ -9,12 +9,7 @@ import { createRequestStub, createResponseStub, setStubsToCallNext } from './tes
 describe('#createHandlers', () => {
 
   it('should return a 404 if the handler is not there for the verb', async function () {
-    const handler = createHandlers({
-      get: {
-        async handler() {
-        }
-      }
-    });
+    const handler = createHandlers({get: {handler: sinon.stub()}});
     const request = createRequestStub('post');
     const statusMethodStub = sinon.stub();
     const jsonMethodStub = sinon.stub();
@@ -31,12 +26,7 @@ describe('#createHandlers', () => {
     const expectedResponse = {message: 'this is a custom message'};
     const opts: HandlerOptions = {handlerMissingResponse: () => expectedResponse};
 
-    const handler = createHandlers({
-      get: {
-        handler: async () => {
-        }
-      }
-    }, opts);
+    const handler = createHandlers({get: {handler: sinon.stub()}}, opts);
     const request = createRequestStub('post');
     const statusMethodStub = sinon.stub();
     const jsonMethodStub = sinon.stub();
@@ -175,8 +165,8 @@ describe('#createHandlers', () => {
 
       await handler(request, response);
 
-    } catch (e: any) {
-      expect(e.message).to.equal(errorMessage);
+    } catch (e: unknown) {
+      expect((e as Error).message).to.equal(errorMessage);
     }
   });
 

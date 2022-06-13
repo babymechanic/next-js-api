@@ -184,7 +184,7 @@ export default createHandlers({
     preHooks: [alwaysThrowError],
     postHooks: [returnErrorMessage]
   }
-});
+}, opts);
 ```
 
 # License

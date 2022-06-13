@@ -5,27 +5,27 @@ interface PerRequestContextItem<T> {
   dispose?: Disposable<T>;
 }
 
-const wrapDisposeError = (x: PerRequestContextItem<unknown>): { error: any } => {
+const wrapDisposeError = (x: PerRequestContextItem<unknown>): { error: unknown } => {
   try {
     x.dispose?.(x.value)
     return {error: null};
-  } catch (e: any) {
+  } catch (e: unknown) {
     return {error: e};
   }
 };
 
 export class PerRequestContext {
 
-  private readonly _items: Map<string, PerRequestContextItem<any>>;
+  private readonly _items: Map<string, PerRequestContextItem<unknown>>;
   private readonly _errors: unknown[];
 
   constructor() {
-    this._items = new Map<string, PerRequestContextItem<any>>();
+    this._items = new Map<string, PerRequestContextItem<unknown>>();
     this._errors = [];
   }
 
   addItem<T>(key: string, value: T, dispose?: Disposable<T>): void {
-    this._items.set(key, {value, dispose});
+    this._items.set(key, {value, dispose: dispose as Disposable<unknown>});
   }
 
   get errors(): unknown[] {

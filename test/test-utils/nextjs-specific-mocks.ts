@@ -13,7 +13,7 @@ export function createRequestStub(verb: ApiRouteMethods) {
 export function createResponseStub(statusMethodStub: SinonStub = sinon.stub(), jsonMethodStub: SinonStub = sinon.stub()) {
   statusMethodStub.returns({json: jsonMethodStub});
   return {
-    status: statusMethodStub as any
+    status: statusMethodStub as (statusCode: number) => NextApiResponse<unknown>
   } as NextApiResponse
 }
 

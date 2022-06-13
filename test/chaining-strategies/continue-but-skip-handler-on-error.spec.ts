@@ -3,7 +3,6 @@ import { ChainingStrategies } from '../../src/chaining-strategies';
 import { PerRequestContext } from '../../src/per-request-context';
 import { createRequestStub, createResponseStub } from '../test-utils/nextjs-specific-mocks';
 import { expect } from 'chai';
-import { NextApiRequest, NextApiResponse } from 'next';
 
 const continueButSkipHandlerOnError = ChainingStrategies.ContinueButSkipHandlerOnError;
 
