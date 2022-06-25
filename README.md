@@ -3,11 +3,12 @@
 # next-middle-api
 
 ## Features
-- Define middlewares to run before and after the handler
-- Per request context
-- Configure execution chain of middlewares and handler or implement a custom execution on error
-- Create resources like connections and resources with teardown per request
-- Intercept the call in the middleware and short circuit
+- [Set handlers for different http methods](https://github.com/babymechanic/next-middle-api#route-definitions-for-http-methods) 
+- [Define middlewares to run before and after the handler](https://github.com/babymechanic/next-middle-api#middleware)
+- [Per request context which allows you to pass common dependencies across the whole chain](https://github.com/babymechanic/next-middle-api#middleware)
+- [Customize execution chain behaviour with 3 defaults](https://github.com/babymechanic/next-middle-api#chaining-strategies)
+- [Create resources like connections and resources with teardown per request](https://github.com/babymechanic/next-middle-api#middleware)
+- [Intercept the call in the middleware and short circuit](https://github.com/babymechanic/next-middle-api#use-middleware-to-intercept-the-call)
 
 ## Available plugins
 
@@ -31,7 +32,7 @@ export default createHandlers({
 });
 ```
 
-## middleware
+## Middleware
 
 Use middlewares to create reusable dependencies for the handlers and optional clean up.
 The cleanup callback will be called even if any failures take place.
@@ -71,7 +72,7 @@ export default createHandlers({
 });
 ```
 
-Use middleware to intercept the call
+### Use middleware to intercept the call
 
 ```typescript
 // pages/api/hello.ts
