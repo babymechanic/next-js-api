@@ -2,17 +2,20 @@
 
 # next-middle-api
 
+A NextJS API route middleware which supports the features listed below  
+
 ## Features
 - [Set handlers for different http methods](https://github.com/babymechanic/next-middle-api#route-definitions-for-http-methods) 
 - [Define middlewares to run before and after the handler](https://github.com/babymechanic/next-middle-api#middleware)
 - [Per request context which allows you to pass common dependencies across the whole chain](https://github.com/babymechanic/next-middle-api#middleware)
-- [Customize execution chain behaviour with 3 defaults](https://github.com/babymechanic/next-middle-api#chaining-strategies)
+- [Customize middleware execution chain behaviour](https://github.com/babymechanic/next-middle-api#chaining-strategies)
 - [Create resources like connections and resources with teardown per request](https://github.com/babymechanic/next-middle-api#middleware)
 - [Intercept the call in the middleware and short circuit](https://github.com/babymechanic/next-middle-api#use-middleware-to-intercept-the-call)
 
 ## Available plugins
 
 - Handle query params [next-middle-api-query-parser](https://www.npmjs.com/package/next-middle-api-query-parser).
+- In memory image middleware  [next-api-image-middleware](https://www.npmjs.com/package/next-api-image-middleware).
 
 ## Route definitions for HTTP methods
 
@@ -139,19 +142,20 @@ export default createHandlers({
 
 ## Chaining Strategies
 
+This is to customize how you want the chain to behave on error.
 By default, on error the chain stops executing.  
 
 Out of the box the supported strategies are:
 - Stop at first error in the chain
   - It will just use the `errorHandler` option that was passed which by default bubbles the error to the root.
 - Execute all even on error
-  - It will execute all the middlewares and route handler even on error
-  - You need to make sure that you handle the error and return an appropriate response
+  - It will execute all the middlewares and route handler even on error.
+  - You need to make sure that you handle the error and return an appropriate response else it will keep waiting.
   - The context `firstError` prop has the first error that occurred. 
   - The `errors` prop will give all the errors.
 - Execute on error but skip the handler
-  - It will execute all the middlewares but skip the route handler on error
-  - You need to make sure that you handle the error and return an appropriate response
+  - It will execute all the middlewares but skip the route handler on error.
+  - You need to make sure that you handle the error and return an appropriate response else it will keep waiting.
   - The context `firstError` prop has the first error that occurred.
   - The `errors` prop will give all the errors.
 

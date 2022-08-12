@@ -1,6 +1,6 @@
 {
   "name": "next-middle-api",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Tools to help with nextjs API routes",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
